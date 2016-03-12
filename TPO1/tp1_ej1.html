@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>Adivina Adivinador</title>
+<style type="text/css">
+body{
+	background-color:#DABABA;
+	font-size:80px;
+	text-align:center;
+}
+p{
+	font-size:100px;
+	color:#00C;
+}
+</style>
+<script type="text/javascript">
+//Función ejecutada cuando se produzca el evento keypress(cuando se presiona un tecla)
+function adivinar(event)
+{
+   var J1= Math.round(Math.random() * 9);//Se genera un valor random entre 0 a 9
+   var x = event.which;//Se recupera el código ascii de la tecla presionada
+   if(x>=48 && x<=57){//Se comprueba que se presionó una tecla numérica
+   		var mensaje = 'J2 dijo '+(x-48)+'\nJ1 dijo '+J1;
+   		if(J1 == (x-48))//Compara los valores dados por J1 y J2
+   			mensaje += '\nGANASTE!';
+		else
+			mensaje += '\nHas perdido';
+   }
+   else
+   		mensaje = 'No has ingresado un d\u00edgito';
+	alert(mensaje);
+}
+
+</script>
+</head>
+<body id='cuerpo' onkeypress='adivinar(event)'>
+<p>Bienvenido J2</p>
+<br>
+&iexcl;Ingrese un d&iacute;gito!
+<br>
+&iexcl;Suerte!
+</body>
+</html>
+

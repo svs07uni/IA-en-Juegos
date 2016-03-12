@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<title>On Click</title>
+<style type="text/css">
+body{
+	background-image:url(imagen.jpg);
+	background-size:cover
+}
+</style>
+<script type="text/javascript">
+//Se deshabilita el menú contextual al presionar el click secundario
+document.oncontextmenu = function(){return false;}
+//Se ejecuta la función procesarClic cuando se produzca el evento mousedown(cuando se presiona algún botón del mouse
+document.onmousedown = procesarClic;
+function procesarClic(event){
+	var elto = document.createElement('div');//Se crea un elemento div
+	
+	var letra;
+	if(event.which == 1){//Verifica si se presionó el botón izquierdo del mouse
+		letra = document.createTextNode('L');//Se crea un campo de texto con la letra L
+		elto.appendChild(letra);//Se incluye la letra como elemento interno/hijo del elemento div
+		elto.style.backgroundColor = 'red';//Se modifica el color de fondo de elto
+		
+	}
+	else if(event.which == 3){//Verifica si se presionó el botón derecho del mouse
+			letra = document.createTextNode('R ');
+			elto.appendChild(letra);
+			elto.style.backgroundColor = 'blue';
+			
+	}
+	elto.style.position = 'absolute';//Se ubica el elemento div de manera absoluta con margen superior top y margen izquierdo left
+	elto.style.top = (event.clientY-16)+'px';
+	elto.style.left = event.clientX+'px';
+	var cuer = document.getElementById('cuerpo');
+	cuer.appendChild(elto);//Se incluye el nuevo elemento div como hijo o interno del contenido de la página
+	
+}
+
+</script>
+</head>
+<body id='cuerpo'>
+</body>
+</html>

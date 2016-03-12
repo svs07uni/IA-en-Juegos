@@ -1,0 +1,51 @@
+function Nave(game, cordX, cordY, spriteId){
+    Phaser.Sprite.call(this, game, cordX, cordY, spriteId)
+    this.game.physics.enable(this, Phaser.Physics.ARCADE);
+    this.scale = (new Phaser.Point(0.35,0.35));
+
+    console.log("matriz en 0 0 "+[2,2]);
+    this.score=0;
+    this.anchor.setTo(0.5, 0.5);
+    this.behavior = new Seek(this);
+	this.camino;
+    this.meta = itemMasCercano(this);
+	
+	this.satisfactionRadius = 1;
+	this.body.maxSpeed = 200;
+    
+    this.game.add.existing(this);
+    this.body.collideWorldBounds=true;
+}
+
+Nave.prototype = Object.create(Phaser.Sprite.prototype);
+Nave.prototype.constructor = Nave;
+
+Nave.prototype.setCamino = function (camino){
+    this.camino=camino;
+}
+
+Nave.prototype.metaVive = function() {
+    return this.meta.alive;
+}
+
+
+Nave.prototype.update = function () {
+    if (!this.game.gameOver) {
+        if (!this.metaVive()) {
+            this.meta = itemMasCercano(this);
+            this.camino = buscarCamino(this);
+        }
+            
+        this.behavior.target = new Steering(calcularPosicion(this.camino[0].x,this.camino[0].y));
+        this.behavior.update(this.behavior.getSteering());
+        if (Phaser.Point.distance(this.behavior.target.position, this.position) < 5*this.satisfactionRadius) {
+            this.camino.splice(0,1);
+        }
+    }
+    else {
+        this.behavior = new Arrive (this);
+        this.behavior.target = new Steering(cursor());
+        this.behavior.update(this.behavior.getSteering());
+    }
+}
+

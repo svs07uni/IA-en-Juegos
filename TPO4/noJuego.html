@@ -1,0 +1,179 @@
+<html lang="en"> 
+    <head> 
+        <meta charset="UTF-8" />
+        <title>Blue Jay</title>
+        <script type="text/javascript" src="phaser.min.js"></script>
+        <style type="text/css">
+            body {
+                margin: 0;
+            }
+            .boton:hover{
+                background-color: #00CCCC;
+                font-size:50px;
+                color:white;
+            }
+            .boton{
+                float: left;
+            }
+        </style>
+        <!-- LIBS-->
+        <script src="scripts/jq.min.js"></script>
+        <script src="scripts/phaser.js"></script>
+
+        <!-- UTILS-->
+        <script src="scripts/utils/movementUtils.js"></script>
+
+        <!-- BASE OBJS -->
+        <script src="scripts/objs/entity.js"></script>
+        <script src="scripts/objs/boid.js"></script>
+        <script src="scripts/objs/immovable.js"></script>
+        <script src="scripts/objs/wanderingBoid.js"></script>
+        <script src="scripts/objs/fleeingBoid.js"></script>
+        <script src="scripts/objs/evadingBoid.js"></script>
+        <script src="scripts/objs/mariposa.js"></script>
+        <script src="scripts/objs/ave.js"></script>
+        <script src="scripts/objs/ArrivalDestination.js"></script>
+
+        <!-- BEHAVIORS -->
+        <script src="scripts/behaviors/behavior.js"></script>
+        <script src="scripts/behaviors/behaviorWander.js"></script>
+        <script src="scripts/behaviors/behaviorFind.js"></script>
+        <script src="scripts/behaviors/behaviorFlee.js"></script>
+         <script src="scripts/behaviors/behaviorPursue.js"></script>
+         <script src="scripts/behaviors/behaviorEvade.js"></script>
+         <script src="scripts/behaviors/behaviorArrive.js"></script>
+         <script src="scripts/behaviors/behaviorEvade.js"></script>
+        <!-- GAME OBJS-->
+
+
+
+    </head>
+    <body>
+
+        <script type="text/javascript">
+
+            var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
+
+
+            function preload() {
+                game.load.image('fondo', 'assets/fondo.PNG');
+				game.load.image('casa', 'assets/home.png');
+                game.load.spritesheet('mariposa', 'assets/sprite_mariposa.png', 84, 48, 10);
+                game.load.image('jay', 'assets/un_jay.png');
+				game.load.image('serpiente', 'assets/serpiente.png');
+            }
+
+            var mariposas = [];
+            var cantMariposas = 5;
+            var ave;
+            var aves = [];
+			var mensaje;
+
+            function create() {
+                game.physics.startSystem(Phaser.Physics.ARCADE);//indica que va a ser un juego arcade
+
+                game.add.image(0, 0, 'fondo');
+
+                for (var i = 0; i < cantMariposas; i++) {
+                    var mariposa = new Mariposa(game, aves);
+
+                    mariposa.initialize(1, 'mariposa');
+                    mariposa.sprite.animations.add('volar');
+                    mariposa.sprite.animations.play('volar', 50, true);
+                    mariposa.crear(1);
+                    mariposas.push(mariposa);
+                }
+				mensaje = game.add.text(50,50,"",{fontSize: '32px'});
+                ave = new Ave(game);
+                aves.push(ave);
+                setTimeout(crearPajaro, 5000);
+				
+				casa = new ArrivalDestination(game);
+
+				serp = new Boid(game);
+            }
+			
+            var existeAve = false;
+			var existeCasa = false;
+            var estadoMar;
+			var casa;
+			var existenAves = false;
+			var existeSerp = false;
+			var serp;
+						
+            function update() {
+                for (var i = 0; i < cantMariposas; i++){
+                    mariposas[i].update();
+					mensaje.text = "Wander&Arrive";
+				}
+
+                if (existeAve)
+                    ave.update();
+
+                if (cantVivos(mariposas) == 1) {//Queda una mariposa
+                  	mensaje.text = "Flee&Arrive";
+				   if(mariposas[0].sprite.alive && estadoMar!=2){
+                            mariposas[0].cambiarFlee(ave);
+							estadoMar=2;
+                        }
+                    
+                }
+				
+				if(cantVivos(mariposas) == 0){
+					
+					if(!existeCasa)	{
+						mensaje.text = "Wander";					
+						setTimeout(crearCasa, 5000);
+					}
+					else
+						mensaje.text = "Find -----> FIN!";
+				}
+				
+            }
+			
+			function crearCasa(){
+				var x = game.world.width * 0.5;
+				var y = game.world.height -100;
+				casa.initialize(3, 'casa');
+					var pos = new Phaser.Point(x, y);
+					
+					var vel = new Phaser.Point(0,0);
+					casa.create(pos, vel, 0, false);
+					casa.sprite.scale.set = (2,2);
+					ave.irCasa(casa);
+					
+					existeCasa = true;
+			}
+
+            function crearPajaro() {
+                ave.initialize(2, 'jay');
+                ave.crear(mariposas);
+                existeAve = true;
+            }
+
+            function cantVivos(col) {
+                var cont = 0;
+                for (var i = 0; i < col.length; i++)
+                    if (col[i].sprite.alive)
+                        cont++;
+                return cont;
+            }
+
+
+        </script>
+
+		<div style="overflow:auto">
+            <ul style="list-style-type: none">
+               <li><button class='boton' style=font-size:40px onClick="window.location.href = 'index.html'">Agrupación</button></li>
+                <li><button class='boton' style="font-size:40px; background-color: #009999; color:white;" onClick="window.location.href = 'noJuego.html'">No Jugar</button></li>
+                <li><button class='boton' style=font-size:40px onClick="window.location.href = 'juego.html'">Jugar</button></li>                
+            </ul>
+        </div>
+
+    </body>
+</html>
+
+
+
+
+

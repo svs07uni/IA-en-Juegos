@@ -1,0 +1,103 @@
+//this.meta tiene el nodo final
+
+function posMatrizSoto(posx, posy){
+return [posx*anchoCelda, posy*altoCelda];
+}
+
+function enMundo(celda){
+var celdaM;
+for(i=0; i<mundoRevisado.length; i++){
+celdaM = mundoRevisado[i];
+if(celdaM[0] == celda[0] && celdaM[1] == celda[1])
+return celdaM;
+}
+return celda;
+}
+
+function armarCamino(celda){
+var camino = [];
+while(celda.padre != null){
+celda = celda.padre;
+camino.push(celda);
+}
+return camino.reverse();
+}
+
+function obtenerVecinos(celda){
+var vecinos = [];
+if(celda[0]-1 >= 0){
+vecinos.push(enMundo([celda[0]-1,celda[1]]));
+if(celda[1]-1 >= 0){
+vecinos.push(enMundo([celda[0],celda[1]-1]));
+vecinos.push(enMundo([celda[0]-1,celda[1]-1]));
+}
+if(celda[1]+1 < filasGrilla){
+vecinos.push(enMundo([celda[0],celda[1]+1]));
+vecinos.push(enMundo([celda[0]-1,celda[1]+1]));
+}
+}
+if(celda[0]+1 < columnasGrilla){
+vecinos.push(enMundo([celda[0]+1,celda[1]]));
+if(celda[1]-1 >= 0){
+vecinos.push(enMundo([celda[0]+1,celda[1]-1]));
+}
+if(celda[1]+1 < filasGrilla){
+vecinos.push(enMundo([celda[0]+1,celda[1]+1]));
+}
+}
+return vecinos;
+}
+
+var mundoRevisado = [];
+
+function buscarCaminoSoto(nave){
+var revisados = new PriorityQueue(function(a,b){return a.f-b.f;});
+var celdaInicio = posMatrizSoto(nave.position.x,nave.position.y);
+var celdaFin = posMatrizSoto(nave.meta.position.x, nave.position.y);
+var SQRT2 = Math.SQRT2;
+
+celdaInicio.g = 0;
+celdaInicio.f = 0;
+
+revisados = push(celdaInicio);
+celdaInicio.revisado = true;
+
+while(!revisados.isEmpty()){
+celda = revisados.deq();
+celda.clausurado = true;
+mundoRevisado.push(celda);
+
+if(celda[0] == celdaFin[0] && celda[1] == celdaFin[1]){
+return armarCamino(celda);
+}
+
+vecinos = obtenerVecinos(celda);//arreglo de pares
+for(i=0; i<vecinos.length; i++){
+vecino = vecinos[i];
+if(vecino.clausurado){
+continue;
+}
+
+x = vecino[0];
+y = vecino[1];
+ng = celda.g + ((x - celda[0] == 0 || y - celda[1] == 0)? 1: SQRT2);//calculando g
+
+if(!vecino.revisado || ng<vecino.g){
+vecino.g = ng;
+vecino.h = vecino.h || 10* heuristicaSoto(Math.abs(x- nave.meta.position.x),Math.abs(y-nave.meta.position.y));
+
+vecino.f = vecino.g + vecino.h;
+vecino.padre = celda;
+
+if(!vecino.revisado){
+revisados.push(vecino);
+mundoRevisado.push(vecino);
+vecino.revisado = true;
+}
+else{
+revisados.enq(vecino);
+}
+}
+}
+return [];//No se consiguió camino
+}
